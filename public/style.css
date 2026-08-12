@@ -1,0 +1,519 @@
+/* ============================================ */
+/* CARRÉ GYM - STYLES ADMIN & DASHBOARD       */
+/* Couleurs: Noir #000, Vert #82b43c, Blanc   */
+/* ============================================ */
+
+:root {
+  --noir: #000000;
+  --vert: #82b43c;
+  --vert-clair: #9fd456;
+  --vert-fonce: #5a8a2a;
+  --blanc: #ffffff;
+  --gris-fonce: #0a0a0a;
+  --gris-moyen: #1a1a1a;
+  --gris-clair: #2a2a2a;
+  --texte-gris: #b0b0b0;
+  --rouge: #e74c3c;
+  --orange: #f39c12;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--noir);
+  color: var(--blanc);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--gris-fonce); }
+::-webkit-scrollbar-thumb { background: var(--vert); border-radius: 4px; }
+
+/* ============================================ */
+/* LOGIN PAGE                                   */
+/* ============================================ */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--noir) 0%, var(--gris-fonce) 100%);
+  padding: 20px;
+}
+
+.login-box {
+  background: var(--gris-moyen);
+  border: 1px solid var(--gris-clair);
+  border-radius: 20px;
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+}
+
+.login-box .logo {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 25px;
+  background: url('carre_gym_logo.png') center/contain no-repeat;
+}
+
+.login-box h1 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.login-box h1 span { color: var(--vert); }
+
+.login-box p {
+  color: var(--texte-gris);
+  margin-bottom: 35px;
+  font-size: 0.95rem;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--texte-gris);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--gris-fonce);
+  border: 2px solid var(--gris-clair);
+  border-radius: 12px;
+  color: var(--blanc);
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--vert);
+  box-shadow: 0 0 0 3px rgba(130, 180, 60, 0.2);
+}
+
+.btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--vert);
+  color: var(--noir);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  background: var(--vert-clair);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(130, 180, 60, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-msg {
+  color: var(--rouge);
+  font-size: 0.9rem;
+  margin-top: 15px;
+  display: none;
+}
+
+/* ============================================ */
+/* DASHBOARD LAYOUT                             */
+/* ============================================ */
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--gris-moyen);
+  border-right: 1px solid var(--gris-clair);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 25px;
+  border-bottom: 1px solid var(--gris-clair);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sidebar-header .logo {
+  width: 45px;
+  height: 45px;
+  background: url('carre_gym_logo.png') center/contain no-repeat;
+  flex-shrink: 0;
+}
+
+.sidebar-header h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidebar-header h2 span { color: var(--vert); }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 15px;
+  list-style: none;
+}
+
+.sidebar-nav li {
+  margin-bottom: 5px;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  color: var(--texte-gris);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background: rgba(130, 180, 60, 0.15);
+  color: var(--vert);
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid var(--gris-clair);
+}
+
+.sidebar-footer button {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--gris-clair);
+  color: var(--texte-gris);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.sidebar-footer button:hover {
+  border-color: var(--rouge);
+  color: var(--rouge);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  padding: 30px;
+  max-width: calc(100% - 260px);
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.main-header h1 {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-header h1 span { color: var(--vert); }
+
+.date-display {
+  color: var(--texte-gris);
+  font-size: 0.95rem;
+}
+
+/* ============================================ */
+/* STATS CARDS                                  */
+/* ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 35px;
+}
+
+.stat-card {
+  background: var(--gris-moyen);
+  border: 1px solid var(--gris-clair);
+  border-radius: 16px;
+  padding: 25px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--vert);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--vert);
+}
+
+.stat-card h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--texte-gris);
+  margin-bottom: 10px;
+}
+
+.stat-card .value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--blanc);
+}
+
+.stat-card.total::before { background: var(--vert); }
+.stat-card.today::before { background: var(--orange); }
+.stat-card.pending::before { background: var(--rouge); }
+.stat-card.confirmed::before { background: var(--vert-clair); }
+
+/* ============================================ */
+/* TABLEAU DES RÉSERVATIONS                     */
+/* ============================================ */
+.section-box {
+  background: var(--gris-moyen);
+  border: 1px solid var(--gris-clair);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.section-header h2 {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  padding: 10px 15px;
+  background: var(--gris-fonce);
+  border: 1px solid var(--gris-clair);
+  border-radius: 10px;
+  color: var(--blanc);
+  font-size: 0.9rem;
+}
+
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: var(--vert);
+}
+
+.filters input::placeholder { color: #666; }
+
+/* Table */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 14px 16px;
+  color: var(--texte-gris);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--gris-clair);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 16px;
+  border-bottom: 1px solid var(--gris-clair);
+  color: var(--blanc);
+  vertical-align: middle;
+}
+
+tbody tr:hover {
+  background: rgba(130, 180, 60, 0.05);
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge.en_attente { background: rgba(243, 156, 18, 0.2); color: var(--orange); }
+.badge.confirmee { background: rgba(130, 180, 60, 0.2); color: var(--vert); }
+.badge.annulee { background: rgba(231, 76, 60, 0.2); color: var(--rouge); }
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--gris-clair);
+  background: var(--gris-fonce);
+  color: var(--texte-gris);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn-icon:hover {
+  border-color: var(--vert);
+  color: var(--vert);
+}
+
+.btn-icon.delete:hover {
+  border-color: var(--rouge);
+  color: var(--rouge);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--texte-gris);
+}
+
+.empty-state .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+/* ============================================ */
+/* TOAST NOTIFICATIONS                          */
+/* ============================================ */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  color: var(--blanc);
+  font-weight: 600;
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast.success { background: var(--vert); color: var(--noir); }
+.toast.error { background: var(--rouge); }
+
+/* ============================================ */
+/* RESPONSIVE                                   */
+/* ============================================ */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--gris-clair);
+  }
+  .dashboard { flex-direction: column; }
+  .main-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 20px;
+  }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+}
+
+/* Loader */
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gris-clair);
+  border-top-color: var(--vert);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
