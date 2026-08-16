@@ -1,11 +1,12 @@
 // ============================================
-// CARRÉ GYM - ADMIN DASHBOARD JS v2
+// CARRÉ GYM — ADMIN DASHBOARD JS v3 (Sécurisé)
 // ============================================
 
 const API_URL = '';
+const TOKEN_KEY = 'cg_token';
 
 // Vérifier auth
-const token = localStorage.getItem('cg_token');
+const token = localStorage.getItem(TOKEN_KEY);
 if (!token) {
   window.location.href = '/admin';
 }
@@ -15,6 +16,20 @@ function getHeaders() {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   };
+}
+
+// ============================================
+// SÉCURITÉ — ÉCHAPPEMENT HTML COMPLET
+// ============================================
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
 }
 
 function showToast(message, type = 'success') {
@@ -42,11 +57,11 @@ function getStatusBadge(statut) {
     'confirmee': '<span class="badge confirmed">Confirmée</span>',
     'annulee': '<span class="badge cancelled">Annulée</span>'
   };
-  return badges[statut] || `<span class="badge">${statut}</span>`;
+  return badges[statut] || `<span class="badge">${escapeHtml(statut)}</span>`;
 }
 
 // ============================================
-// TODAY'S RESERVATIONS
+// TODAY'S RESERVATIONS — ÉCHAPPEMENT SÉCURISÉ
 // ============================================
 async function loadTodayReservations() {
   const todayList = document.getElementById('todayList');
@@ -55,7 +70,7 @@ async function loadTodayReservations() {
 
   try {
     const today = new Date().toISOString().split('T')[0];
-    const res = await fetch(`${API_URL}/api/reservations?date=${today}`, {
+    const res = await fetch(`${API_URL}/api/reservations?date=${encodeURIComponent(today)}`, {
       headers: getHeaders()
     });
     const data = await res.json();
@@ -78,12 +93,12 @@ async function loadTodayReservations() {
 
     todayList.innerHTML = reservations.map(r => `
       <div class="res-item">
-        <span class="res-time">${formatTime(r.heure)}</span>
+        <span class="res-time">${escapeHtml(formatTime(r.heure))}</span>
         <span class="res-name">${escapeHtml(r.nom)}</span>
-        <span class="res-type">${r.type}</span>
+        <span class="res-type">${escapeHtml(r.type)}</span>
         <div class="res-actions">
-          <button class="btn-accept" onclick="updateStatus(${r.id}, 'confirmee')">Accept</button>
-          <button class="btn-reject" onclick="updateStatus(${r.id}, 'annulee')">Reject</button>
+          <button class="btn-accept" onclick="updateStatus(${parseInt(r.id,10)}, 'confirmee')">Accept</button>
+          <button class="btn-reject" onclick="updateStatus(${parseInt(r.id,10)}, 'annulee')">Reject</button>
         </div>
       </div>
     `).join('');
@@ -122,7 +137,7 @@ async function loadStats() {
 }
 
 // ============================================
-// FULL RESERVATIONS LIST
+// FULL RESERVATIONS LIST — VALIDATION + ÉCHAPPEMENT
 // ============================================
 async function loadReservations() {
   const tbody = document.getElementById('reservationsTable');
@@ -131,9 +146,14 @@ async function loadReservations() {
   tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:40px;"><div class="loader"></div></td></tr>';
 
   try {
-    const search = document.getElementById('searchInput')?.value || '';
-    const date = document.getElementById('dateFilter')?.value || '';
-    const statut = document.getElementById('statusFilter')?.value || '';
+    const searchRaw = document.getElementById('searchInput')?.value || '';
+    const dateRaw = document.getElementById('dateFilter')?.value || '';
+    const statutRaw = document.getElementById('statusFilter')?.value || '';
+
+    // Validation frontend des filtres
+    const search = searchRaw.trim().substring(0, 100);
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(dateRaw) ? dateRaw : '';
+    const statut = ['en_attente', 'confirmee', 'annulee'].includes(statutRaw) ? statutRaw : '';
 
     let url = `${API_URL}/api/reservations`;
     const params = [];
@@ -156,25 +176,27 @@ async function loadReservations() {
       return;
     }
 
-    tbody.innerHTML = rows.map(r => `
+    tbody.innerHTML = rows.map(r => {
+      const id = parseInt(r.id, 10);
+      return `
       <tr>
-        <td>#${r.id}</td>
+        <td>#${id}</td>
         <td>${escapeHtml(r.nom)}</td>
         <td>${escapeHtml(r.telephone)}</td>
-        <td>${formatDate(r.date)}</td>
-        <td>${formatTime(r.heure)}</td>
-        <td>${r.type}</td>
+        <td>${escapeHtml(formatDate(r.date))}</td>
+        <td>${escapeHtml(formatTime(r.heure))}</td>
+        <td>${escapeHtml(r.type)}</td>
         <td>${getStatusBadge(r.statut)}</td>
         <td>${escapeHtml(r.notes || '-')}</td>
         <td>
           <div class="actions">
-            ${r.statut !== 'confirmee' ? `<button class="btn-icon confirm" onclick="updateStatus(${r.id}, 'confirmee')" title="Confirmer">✓</button>` : ''}
-            ${r.statut !== 'en_attente' ? `<button class="btn-icon pending" onclick="updateStatus(${r.id}, 'en_attente')" title="Remettre en attente">⏸</button>` : ''}
-            <button class="btn-icon delete" onclick="deleteReservation(${r.id})" title="Supprimer">🗑</button>
+            ${r.statut !== 'confirmee' ? `<button class="btn-icon confirm" onclick="updateStatus(${id}, 'confirmee')" title="Confirmer">✓</button>` : ''}
+            ${r.statut !== 'en_attente' ? `<button class="btn-icon pending" onclick="updateStatus(${id}, 'en_attente')" title="Remettre en attente">⏸</button>` : ''}
+            <button class="btn-icon delete" onclick="deleteReservation(${id})" title="Supprimer">🗑</button>
           </div>
         </td>
       </tr>
-    `).join('');
+    `}).join('');
 
   } catch (err) {
     console.error('Load reservations error:', err);
@@ -183,11 +205,21 @@ async function loadReservations() {
 }
 
 // ============================================
-// ACTIONS
+// ACTIONS — VALIDATION DES IDs
 // ============================================
 async function updateStatus(id, statut) {
+  const safeId = parseInt(id, 10);
+  if (isNaN(safeId) || safeId <= 0) {
+    showToast('ID invalide', 'error');
+    return;
+  }
+  if (!['en_attente', 'confirmee', 'annulee'].includes(statut)) {
+    showToast('Statut invalide', 'error');
+    return;
+  }
+
   try {
-    const res = await fetch(`${API_URL}/api/reservations/${id}`, {
+    const res = await fetch(`${API_URL}/api/reservations/${safeId}`, {
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify({ statut })
@@ -200,7 +232,7 @@ async function updateStatus(id, statut) {
       loadReservations();
       loadStats();
     } else {
-      showToast(data.error || 'Erreur', 'error');
+      showToast(escapeHtml(data.error) || 'Erreur', 'error');
     }
   } catch (err) {
     showToast('Erreur réseau', 'error');
@@ -208,10 +240,16 @@ async function updateStatus(id, statut) {
 }
 
 async function deleteReservation(id) {
+  const safeId = parseInt(id, 10);
+  if (isNaN(safeId) || safeId <= 0) {
+    showToast('ID invalide', 'error');
+    return;
+  }
+
   if (!confirm('Supprimer cette réservation ?')) return;
 
   try {
-    const res = await fetch(`${API_URL}/api/reservations/${id}`, {
+    const res = await fetch(`${API_URL}/api/reservations/${safeId}`, {
       method: 'DELETE',
       headers: getHeaders()
     });
@@ -223,7 +261,7 @@ async function deleteReservation(id) {
       loadReservations();
       loadStats();
     } else {
-      showToast(data.error || 'Erreur', 'error');
+      showToast(escapeHtml(data.error) || 'Erreur', 'error');
     }
   } catch (err) {
     showToast('Erreur réseau', 'error');
@@ -231,14 +269,8 @@ async function deleteReservation(id) {
 }
 
 function logout() {
-  localStorage.removeItem('cg_token');
+  localStorage.removeItem(TOKEN_KEY);
   window.location.href = '/admin';
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // ============================================
@@ -256,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadStats();
   }, 30000);
 
-  // Filter listeners
+  // Filter listeners avec debounce
   const searchInput = document.getElementById('searchInput');
   const dateFilter = document.getElementById('dateFilter');
   const statusFilter = document.getElementById('statusFilter');

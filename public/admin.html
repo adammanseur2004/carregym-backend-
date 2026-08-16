@@ -15,9 +15,10 @@
     .today-panel .divider { height: 3px; background: var(--v); margin: 15px 0 20px; border-radius: 2px; }
     .res-list { display: flex; flex-direction: column; gap: 12px; }
     .res-item { display: flex; align-items: center; justify-content: space-between; background: var(--g1); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--g3); }
-    .res-item .time { color: var(--v); font-weight: 700; font-size: 1.1rem; min-width: 60px; }
-    .res-item .name { color: var(--b); font-size: 1.05rem; flex: 1; padding-left: 20px; }
-    .res-item .actions { display: flex; gap: 8px; }
+    .res-item .res-time { color: var(--v); font-weight: 700; font-size: 1.1rem; min-width: 60px; }
+    .res-item .res-name { color: var(--b); font-size: 1.05rem; flex: 1; padding-left: 20px; }
+    .res-item .res-type { color: var(--t); font-size: 0.85rem; text-transform: uppercase; margin-right: 15px; }
+    .res-item .res-actions { display: flex; gap: 8px; }
     .btn-accept { background: var(--v); color: #000; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all .2s; }
     .btn-accept:hover { background: var(--vc); transform: translateY(-2px); }
     .btn-reject { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all .2s; }
@@ -33,7 +34,7 @@
     @media (max-width: 768px) {
       .dash-v2 { padding: 15px; }
       .res-item { flex-wrap: wrap; gap: 10px; }
-      .res-item .name { padding-left: 0; width: 100%; }
+      .res-item .res-name { padding-left: 0; width: 100%; }
     }
   </style>
 </head>
@@ -67,7 +68,7 @@
 
         <!-- Today's reservations -->
         <div class="today-panel">
-          <h2>Today's reservations</h2>
+          <h2>Réservations du jour</h2>
           <div class="divider"></div>
           <div class="res-list" id="todayList">
             <div class="empty-state">Chargement...</div>
@@ -76,16 +77,16 @@
 
         <!-- New reservations count -->
         <div class="new-count">
-          <p>New reservations:</p>
+          <p>Nouvelles réservations (en attente) :</p>
           <strong id="newCount">-</strong>
         </div>
 
-        <!-- Full reservations table (hidden by default, accessible via nav) -->
+        <!-- Full reservations table -->
         <div class="section-box" id="reservations" style="margin-top:40px;">
           <div class="section-header">
             <h2>📋 Liste complète</h2>
             <div class="filters">
-              <input type="text" id="searchInput" placeholder="🔍 Rechercher...">
+              <input type="text" id="searchInput" placeholder="🔍 Rechercher..." maxlength="100">
               <input type="date" id="dateFilter">
               <select id="statusFilter">
                 <option value="">Tous les statuts</option>
@@ -126,49 +127,5 @@
   <div class="toast" id="toast"></div>
 
   <script src="/admin.js"></script>
-  <script>
-    // Override loadStats to also populate today's list
-    const originalLoadStats = loadStats;
-    loadStats = async function() {
-      await originalLoadStats();
-      // Also load today's reservations
-      loadTodayReservations();
-    };
-
-    async function loadTodayReservations() {
-      const token = localStorage.getItem('adminToken');
-      const today = new Date().toISOString().split('T')[0];
-      try {
-        const res = await fetch(`/api/reservations?date=${today}`, {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const data = await res.json();
-        const list = document.getElementById('todayList');
-        const countEl = document.getElementById('newCount');
-
-        if (data.success && data.data.length > 0) {
-          list.innerHTML = data.data.map(r => `
-            <div class="res-item">
-              <span class="time">${r.heure}</span>
-              <span class="name">${r.nom}</span>
-              <div class="actions">
-                <button class="btn-accept" onclick="updateStatus(${r.id}, 'confirmee')">Accept</button>
-                <button class="btn-reject" onclick="updateStatus(${r.id}, 'annulee')">Reject</button>
-              </div>
-            </div>
-          `).join('');
-        } else {
-          list.innerHTML = '<div class="empty-state">Aucune réservation aujourd'hui</div>';
-        }
-
-        // Count pending as "new"
-        const pending = data.data ? data.data.filter(r => r.statut === 'en_attente').length : 0;
-        countEl.textContent = pending;
-      } catch (e) {
-        document.getElementById('todayList').innerHTML = '<div class="empty-state">Erreur de chargement</div>';
-        document.getElementById('newCount').textContent = '0';
-      }
-    }
-  </script>
 </body>
 </html>
