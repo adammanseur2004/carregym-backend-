@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Carré Gym</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    /* Dashboard v2 styles */
+    .dash-v2 { padding: 30px; max-width: 900px; }
+    .dash-v2 h1 { font-size: 1.8rem; margin-bottom: 30px; color: var(--b); }
+    .dash-v2 h1 span { color: var(--v); }
+    .today-panel { background: var(--g2); border: 1px solid var(--g3); border-radius: 16px; padding: 30px; margin-bottom: 30px; }
+    .today-panel h2 { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; color: var(--t); margin-bottom: 5px; }
+    .today-panel .divider { height: 3px; background: var(--v); margin: 15px 0 20px; border-radius: 2px; }
+    .res-list { display: flex; flex-direction: column; gap: 12px; }
+    .res-item { display: flex; align-items: center; justify-content: space-between; background: var(--g1); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--g3); }
+    .res-item .time { color: var(--v); font-weight: 700; font-size: 1.1rem; min-width: 60px; }
+    .res-item .name { color: var(--b); font-size: 1.05rem; flex: 1; padding-left: 20px; }
+    .res-item .actions { display: flex; gap: 8px; }
+    .btn-accept { background: var(--v); color: #000; border: none; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all .2s; }
+    .btn-accept:hover { background: var(--vc); transform: translateY(-2px); }
+    .btn-reject { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 7px 16px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all .2s; }
+    .btn-reject:hover { background: #ff4444; color: #fff; }
+    .new-count { background: var(--g2); border: 1px solid var(--g3); border-radius: 16px; padding: 25px 30px; text-align: center; }
+    .new-count p { color: var(--t); font-size: 1.1rem; margin: 0; }
+    .new-count strong { color: var(--v); font-size: 2rem; display: block; margin-top: 8px; }
+    .top-bar-dash { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .top-bar-dash h1 { margin: 0; }
+    .top-bar-dash .btn-outline { background: transparent; color: var(--b); border: 2px solid var(--v); padding: 10px 24px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: all .3s; }
+    .top-bar-dash .btn-outline:hover { background: var(--v); color: #000; }
+    .empty-state { text-align: center; padding: 30px; color: var(--t); font-style: italic; }
+    @media (max-width: 768px) {
+      .dash-v2 { padding: 15px; }
+      .res-item { flex-wrap: wrap; gap: 10px; }
+      .res-item .name { padding-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo"></div>
+        <h2>Carré <span>Gym</span></h2>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active">📊 Tableau de bord</a></li>
+        <li><a href="#reservations">📋 Réservations</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button onclick="logout()">🚪 Déconnexion</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="dash-v2">
+
+        <div class="top-bar-dash">
+          <h1>Admin <span>Dashboard</span></h1>
+          <button onclick="logout()" class="btn-outline">Déconnexion</button>
+        </div>
+
+        <!-- Today's reservations -->
+        <div class="today-panel">
+          <h2>Today's reservations</h2>
+          <div class="divider"></div>
+          <div class="res-list" id="todayList">
+            <div class="empty-state">Chargement...</div>
+          </div>
+        </div>
+
+        <!-- New reservations count -->
+        <div class="new-count">
+          <p>New reservations:</p>
+          <strong id="newCount">-</strong>
+        </div>
+
+        <!-- Full reservations table (hidden by default, accessible via nav) -->
+        <div class="section-box" id="reservations" style="margin-top:40px;">
+          <div class="section-header">
+            <h2>📋 Liste complète</h2>
+            <div class="filters">
+              <input type="text" id="searchInput" placeholder="🔍 Rechercher...">
+              <input type="date" id="dateFilter">
+              <select id="statusFilter">
+                <option value="">Tous les statuts</option>
+                <option value="en_attente">En attente</option>
+                <option value="confirmee">Confirmée</option>
+                <option value="annulee">Annulée</option>
+              </select>
+              <button class="btn" style="width:auto; padding: 10px 20px; font-size: 0.85rem;" onclick="loadReservations()">🔄 Actualiser</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nom</th>
+                  <th>Téléphone</th>
+                  <th>Date</th>
+                  <th>Heure</th>
+                  <th>Type</th>
+                  <th>Statut</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reservationsTable">
+                <tr><td colspan="9" style="text-align:center; padding:40px;"><div class="loader"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/admin.js"></script>
+  <script>
+    // Override loadStats to also populate today's list
+    const originalLoadStats = loadStats;
+    loadStats = async function() {
+      await originalLoadStats();
+      // Also load today's reservations
+      loadTodayReservations();
+    };
+
+    async function loadTodayReservations() {
+      const token = localStorage.getItem('adminToken');
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        const res = await fetch(`/api/reservations?date=${today}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        const list = document.getElementById('todayList');
+        const countEl = document.getElementById('newCount');
+
+        if (data.success && data.data.length > 0) {
+          list.innerHTML = data.data.map(r => `
+            <div class="res-item">
+              <span class="time">${r.heure}</span>
+              <span class="name">${r.nom}</span>
+              <div class="actions">
+                <button class="btn-accept" onclick="updateStatus(${r.id}, 'confirmee')">Accept</button>
+                <button class="btn-reject" onclick="updateStatus(${r.id}, 'annulee')">Reject</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          list.innerHTML = '<div class="empty-state">Aucune réservation aujourd'hui</div>';
+        }
+
+        // Count pending as "new"
+        const pending = data.data ? data.data.filter(r => r.statut === 'en_attente').length : 0;
+        countEl.textContent = pending;
+      } catch (e) {
+        document.getElementById('todayList').innerHTML = '<div class="empty-state">Erreur de chargement</div>';
+        document.getElementById('newCount').textContent = '0';
+      }
+    }
+  </script>
+</body>
+</html>
